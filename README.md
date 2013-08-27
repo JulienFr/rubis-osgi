@@ -1,5 +1,8 @@
-dcsj-rubis
+rubis-osgi
 ==========
+This project has been refactored to fit the OSGi bundle structure.
+This has been taken from this repository : https://github.com/sguazt/dcsj-rubis
+Thanks to Marco Guazzone (https://github.com/sguazt) for bringing a revival to RUBiS to the current technologies.
 
 A java implementation of the _Rice University Bidding System_ (RUBiS).
 
@@ -7,6 +10,8 @@ RUBiS is a free, open source initiative.
 This implementation is a fork of version 1.4.3 of [http://rubis.ow2.org](OW2 RUBiS).
 As of 2012, the original 1.4.3 version can still be downloaded at the [http://forge.objectweb.org/project/showfiles.php?group_id=44](OW2 site)
 
+<b>This refactored project is meant to work as a OSGi bundle for the ScienceCloudPlatform project</b>
+Trac of the SCP : http://svn.pst.ifi.lmu.de/trac/scp
 
 ## Overview
 
@@ -37,9 +42,21 @@ For these reasons, currently we only provide an implementation based on Java ser
 ## Compile and Install
 
 To compile RUBiS you need Java &ge; 1.5 and [Apache Ant](http://ant.apache.org).
-To run RUBiS you need a Java Servlet container &ge; 2.5, like [Apache Tomcat](http://tomcat.apache.org), and a DBMS like [MySQL](http://www.mysql.com).
+To run RUBiS you need a DBMS like [MySQL](http://www.mysql.com).
 
-While the code should compile and run with every J2EE container and DBMS, we have currently tested it only with Apache Tomcat 6 and MySQL 5.6.\* (with MySQL Connector/J 5.0.\*).
+While the code should compile and run with every DBMS, we have currently tested it only with MySQL 5.6.\* (with MySQL Connector/J 5.0.\*).
+
+### Setup the database
+
+In the setup/db directory, you will find a readme describing each *.sql file.
+Execute these ones in your database to start with :
+```
+rubis.sql			contains the SQL statements to create the RUBiS database using MySQL.
+categories.sql			SQL requests to initalize the categories table
+regions.sql
+```
+
+You may have to isnert initial profiles for starting logging/bidding.
 
 ### Compilation Steps
 
@@ -57,50 +74,34 @@ In the following we refer to the variable `$RUBIS_HOME` as a variable containing
 
 	$ vi user.properties
 
-4. Move to the `servlets` directory.
-
-	$ cd servlets
-
-5. Edit the file `src/java/edu/rice/rubis/servlets/Config.java` to set the following properties
- * `J2eeContainerPath`: this is the path to the J2EE container (e.g., if you use Apache Tomcat this is the same of `$CATALINA_HOME`).
+4. Edit the file `src/edu/rice/rubis/servlets/Config.java` to set the following properties
  * `DatabaseConnectionStrategy`: this is the type of strategy you want to use to connect to the database.
    You can choose among the following values:
    - `UNPOOLED_DRIVERMANAGER_DB_CONNECTION_STRATEGY`: don't use connection pooling and connect to the database by means the `java.sql.DriverManager` class.
    - `POOLED_DRIVERMANAGER_DB_CONNECTION_STRATEGY`: use connection pooling and connect to the database by means the `java.sql.DriverManager` class.
    - `DATASOURCE_DB_CONNECTION_STRATEGY`: setup and manage database connections by means of `javax.sql.DataSource` class (recommended).
 
-6. Edit the database properties
+5. Edit the database properties
    - If you chose `DATASOURCE_DB_CONNECTION_STRATEGY` as database connection strategy, you have to edit the context file to set properties to a proper value:
 
-     $ vi web/META-INF/context.xml
+     $ vi META-INF/context.xml
 
-   - Otherwise, if you chose either `UNPOOLED_DRIVERMANAGER_DB_CONNECTION_STRATEGY` or`POOLED_DRIVERMANAGER_DB_CONNECTION_STRATEGY` as database connection strategy, you have to create a property file in `src/conf/dbms.property` directory (optionally, replace `dbms` with the name of your DBMS).
-     For instance, if you use MySQL you can edit the file `src/conf/mysql.properties` to set properties to a proper value (e.g., the host name where the DBMS runs).
+   - Otherwise, if you chose either `UNPOOLED_DRIVERMANAGER_DB_CONNECTION_STRATEGY` or`POOLED_DRIVERMANAGER_DB_CONNECTION_STRATEGY` as database connection strategy, you have to create a property file in `dbms.property` directory (optionally, replace `dbms` with the name of your DBMS).
+     For instance, if you use MySQL you can edit the file `mysql.properties` to set properties to a proper value (e.g., the host name where the DBMS runs).
 
-	 $ vi src/conf/mysql.properties
+	 $ vi mysql.properties
 
-     Then you have to edit the file `src/java/edu/rice/rubis/servlets/Config.java` and change the value of `DatabaseProperties` to point to the name of your `dbms.property` file.
+     Then you have to edit the file `src/edu/rice/rubis/servlets/Config.java` and change the value of `DatabaseProperties` to point to the name of your `dbms.property` file.
      If you use MySQL, you can use the default value.
 
-7. Copy the JAR file of the JDBC database driver in `$RUBIS_HOME/lib`.
+6. Copy the JAR file of the JDBC database driver in `$RUBIS_HOME/lib`.
    For instance, if you use MySQL you have to copy the Connector/J JAR file in that location:
 
    $ cp mysql-connector-java-5.1.22-bin.jar lib/
 
-8. Run Ant:
+7. Run Ant, this will build the project and create the jar into the out directory
 
-	$ ant clean all
-
-9. Copy the WAR file to your container.
-   For instance, if you use Apache Tomcat:
-
-   $ cp dist/rubis\_servlets.war $CATALINA\_HOME/webapps/
-
-10. Try to connect to the RUBiS web application by pointing your browser at the RUBiS home page.
-    For instance:
-
-   $ elinks localhot:8080/rubis\_servlets
-
+	$ ant export
 
 ## References
 

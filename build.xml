@@ -1,68 +1,63 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- WARNING: Eclipse auto-generated file.
-              Any modifications will be overwritten.
-              To include a user specific buildfile here, simply create one in the same
-              directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="rubis-osgi">
-    <property environment="env"/>
-	<propertyfile file="build.properties" />
-	<propertyfile file="user.properties" />
-    <property name="ECLIPSE_HOME" value="${eclipse.home}"/>
-    <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.7"/>
-    <property name="source" value="1.7"/>
-    <path id="Plug-in Dependencies.libraryclasspath">
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.eclipse.osgi_3.8.2.v20130124-134944.jar"/>
-        <pathelement location="../../../eu.ascens_ist.cloud.knowledge"/>
-        <pathelement location="../../../eu.ascens_ist.cloud.appengine"/>
-        <pathelement location="../../../eu.ascens_ist.cloud.connectivity"/>
-        <pathelement location="../../../eu.ascens_ist.cloud.base"/>
-    </path>
-    <path id="rubis-osgi.classpath">
-        <pathelement location="bin"/>
-        <path refid="Plug-in Dependencies.libraryclasspath"/>
-    </path>
-    <target name="init">
-        <mkdir dir="bin"/>
-        <copy includeemptydirs="false" todir="bin">
-            <fileset dir="src">
-                <exclude name="**/*.launch"/>
-                <exclude name="**/*.java"/>
-            </fileset>
-        </copy>
-    </target>
-    <target name="clean">
-        <delete dir="bin"/>
-    </target>
-    <target depends="clean" name="cleanall"/>
-    <target depends="build-subprojects,build-project" name="build"/>
-    <target name="build-subprojects"/>
-    <target depends="init" name="build-project">
-        <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
-            <src path="src"/>
-            <classpath refid="rubis-osgi.classpath"/>
-        </javac>
-    </target>
-    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
-        <copy todir="${ant.library.dir}">
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </copy>
-        <unzip dest="${ant.library.dir}">
-            <patternset includes="jdtCompilerAdapter.jar"/>
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </unzip>
-    </target>
-    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
-        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
-        <antcall target="build"/>
-    </target>
-        	
-	<target name="jar">
-		<mkdir dir="out" />
-		<property name="dest" location="out" />  
-		<jar destfile="${dest}/rubis.jar" basedir="bin" manifest="META-INF/MANIFEST.MF">
+<project basedir="." default="jar" name="rubis-osgi">
+
+	<property file="build.properties" />
+	<property file="user.properties" />
+
+	<!-- Path to Science Cloud Platform -->
+	<property name="scp.home" value="../../../" />
+	<!-- Path to the Java servlet API and OSGi interfaces -->
+	<property name="lib.servlets" value="${scp.home}/eu.ascens_ist.cloud.gui/lib/servlet-api-3.0.jar" />
+	<property name="lib.osgi.core" value="${scp.home}/lib/osgi.core-5.0.0.jar" />
+	
+	<property name="debuglevel" value="source,lines,vars"/>
+	<property name="target" value="1.7"/>
+	<property name="source" value="1.7"/>
+	
+	<path id="scp.classpath">
+		<!-- FIXME: are the first 4 actually valid classpath under some settings? -->
+		<pathelement location="${scp.home}/eu.ascens_ist.cloud.knowledge"/>
+		<pathelement location="${scp.home}/eu.ascens_ist.cloud.appengine"/>
+		<pathelement location="${scp.home}/eu.ascens_ist.cloud.connectivity"/>
+		<pathelement location="${scp.home}/eu.ascens_ist.cloud.base"/>
+		<pathelement location="${scp.home}/eu.ascens_ist.cloud.knowledge/bin/classes"/>
+		<pathelement location="${scp.home}/eu.ascens_ist.cloud.appengine/bin/classes"/>
+		<pathelement location="${scp.home}/eu.ascens_ist.cloud.connectivity/bin/classes"/>
+		<pathelement location="${scp.home}/eu.ascens_ist.cloud.base/bin/classes"/>
+	</path>
+	
+	<path id="libraries.classpath">
+		<pathelement location="${lib.servlets}" />		
+		<pathelement location="${lib.osgi.core}" />
+	</path>
+	
+	<target name="init">
+    	<mkdir dir="bin"/>
+	    <copy includeemptydirs="false" todir="bin">
+	        <fileset dir="src">
+    	        <exclude name="**/*.launch"/>
+    	        <exclude name="**/*.java"/>
+    	    </fileset>
+	    </copy>
+	</target>
+
+	<target name="clean">
+		<delete dir="out" />
+	</target>
+	
+	<target name="build">
+		<mkdir dir="out/classes" />
+		<javac debug="true" debuglevel="${debuglevel}" destdir="out/classes"
+				includeantruntime="false" source="${source}" target="${target}">
+	        <src path="src"/>
+			<classpath refid="scp.classpath"/>
+			<classpath refid="libraries.classpath"/>
+		</javac>
+	</target>
+	
+	<target name="jar" depends="build">
+		<mkdir dir="out/jar" />
+		<jar destfile="out/jar/rubis.jar" basedir="out/classes" manifest="META-INF/MANIFEST.MF">
 			<fileset dir=".">
 				<include name="**/META-INF/SLA.MF" />
 				<include name="**/res/**" />
@@ -72,9 +67,8 @@
 			</fileset>
 		</jar>
 	</target>
-		
-	<target name="export">
-		<antcall target="build" />
-		<antcall target="jar" />
+	
+	<target name="export" depends="jar">
 	</target>  	
 </project>
+
