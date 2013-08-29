@@ -136,8 +136,7 @@ public class Activator implements BundleActivator, AppInterface {
 	}
 
 	@Override
-	public void resumeFromSnapshot(Object snapshot) {
-		// TODO Auto-generated method stub
+	public void resumeFromSnapshot(Snapshot snapshot) {
 
 	}
 

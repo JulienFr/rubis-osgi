@@ -1,14 +1,14 @@
 Manifest-Version: 1.0
-Bundle-Vendor: Lehrstuhl Programmierung & Softwaretechnik, LMU Munich,
-  Julien Malvot
+Bundle-Vendor: Charles University in Prague, Julien Malvot
 Bundle-ManifestVersion: 2
 Bundle-Version: 1.0.0
 Bundle-Name: SCPi RUBiS Component
 Bundle-Activator: edu.rice.rubis.Activator
-Require-Bundle: org.eclipse.osgi;bundle-version="3.8.2",
+Require-Bundle: 
  eu.ascens_ist.cloud.knowledge;bundle-version="1.0.0",
  eu.ascens_ist.cloud.appengine;bundle-version="1.0.0",
  eu.ascens_ist.cloud.connectivity;bundle-version="1.0.0"
+Import-Package: org.osgi.framework
 Export-Package: 
  edu.rice.rubis.servlets
 Bundle-SymbolicName: rubis
