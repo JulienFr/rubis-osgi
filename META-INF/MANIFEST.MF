@@ -13,5 +13,7 @@ Export-Package:
  edu.rice.rubis.servlets
 Bundle-SymbolicName: rubis
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ClassPath: libs/mysql-connector-java-5.1.26-bin.jar, .
+Bundle-ClassPath: libs/mysql-connector-java-5.1.26-bin.jar,
+ libs/htmlcleaner-2.6.jar,
+ .
 

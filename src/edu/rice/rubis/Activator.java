@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joda.time.Instant;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -35,11 +36,15 @@ import edu.rice.rubis.servlets.ViewItem;
 import edu.rice.rubis.servlets.ViewUserInfo;
 import eu.ascens_ist.cloud.appengine.app.AppInterface;
 import eu.ascens_ist.cloud.connectivity.msg.Message;
+import eu.ascens_ist.cloud.connectivity.msg.PingMessage;
+import eu.ascens_ist.cloud.connectivity.msg.PongMessage;
 import eu.ascens_ist.cloud.knowledge.model.Snapshot;
 
 public class Activator implements BundleActivator, AppInterface {
 
 	private static BundleContext context;
+	private Instant lastPing;
+	private Instant lastPong;
 
 	static BundleContext getContext() {
 		return context;
@@ -56,6 +61,9 @@ public class Activator implements BundleActivator, AppInterface {
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context= bundleContext;
 		registration= context.registerService(AppInterface.class.getName(), this, null);
+	
+		lastPing = null;
+		lastPong = null;
 	}
 
 	/*
@@ -73,7 +81,8 @@ public class Activator implements BundleActivator, AppInterface {
 	public void handleUI(String target, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		// case of basic home 
 		if (target.isEmpty()){
-			ServletPrinter.printFile(response.getWriter(), Config.HTMLFilesPath+"/index.html");
+			ServletPrinter sp = new ServletPrinter(response, "");
+			sp.printProcessedFile(Config.HTMLFilesPath+"/index.html");
 		// manual mapping of url-servlets
 		}else if (target.startsWith("servlet/")){
 			HttpServlet hs = null;
@@ -124,9 +133,14 @@ public class Activator implements BundleActivator, AppInterface {
 				// supplies the request and response to the servlet for execution    
 				hs.service(request, response);
 			}
-		// raw file printing
+		// print resources as files
+		}else if (target.startsWith("images/")){
+			ServletPrinter sp = new ServletPrinter(response, "");
+			sp.printFile(Config.HTMLFilesPath+"/"+target);
+		// print pages with html processing according to states
 		}else{
-			ServletPrinter.printFile(response.getWriter(), Config.HTMLFilesPath+"/"+target);
+			ServletPrinter sp = new ServletPrinter(response, "");
+			sp.printProcessedFile(Config.HTMLFilesPath+"/"+target);
 		}
 	}
 
@@ -142,7 +156,19 @@ public class Activator implements BundleActivator, AppInterface {
 
 	@Override
 	public void messageReceived(Message message) {
-		// TODO Auto-generated method stub
+		if (message instanceof PingMessage){
+			lastPing = ((PingMessage) message).getTimestamp();
+		}else if (message instanceof PongMessage){
+			lastPong = ((PongMessage) message).getTimestamp();
+		}
 		
+		if (lastPing != null && lastPong != null){
+			long delta = lastPong.getMillis() - lastPing.getMillis();
+			if (delta > 50){
+				Config.loadLevel = Config.OVERLOAD_LOAD_LEVEL;
+			}else{
+				Config.loadLevel = Config.NO_OVERLOAD_LOAD_LEVEL;
+			}
+		}
 	}
 }
