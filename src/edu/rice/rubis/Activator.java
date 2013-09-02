@@ -7,11 +7,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.joda.time.Instant;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
+import cz.cuni.mff.d3s.spl.agent.AgentMain;
+import cz.cuni.mff.d3s.spl.core.Data;
+import cz.cuni.mff.d3s.spl.core.ProbeController;
+import cz.cuni.mff.d3s.spl.probe.InstrumentationProbeControllerBuilder;
+import cz.cuni.mff.d3s.spl.stock.PlainBufferDataSource;
 import edu.rice.rubis.servlets.AboutMe;
 import edu.rice.rubis.servlets.BrowseCategories;
 import edu.rice.rubis.servlets.BrowseRegions;
@@ -36,21 +40,33 @@ import edu.rice.rubis.servlets.ViewItem;
 import edu.rice.rubis.servlets.ViewUserInfo;
 import eu.ascens_ist.cloud.appengine.app.AppInterface;
 import eu.ascens_ist.cloud.connectivity.msg.Message;
-import eu.ascens_ist.cloud.connectivity.msg.PingMessage;
-import eu.ascens_ist.cloud.connectivity.msg.PongMessage;
 import eu.ascens_ist.cloud.knowledge.model.Snapshot;
 
+/**
+ * 
+ * The SPL agent is activated as a java agent via a command-line argument for
+ * a java program. A different approach needs to be used for OSGi bundles though.
+ * Use of equinox adapter hooks, see [1].
+ * E.g. some implementation at [2]
+ * 
+ * [1] http://www.eclemma.org/research/instrumentingosgi/index.html
+ * [2] http://sourceforge.net/p/eclemma/code/1739/tree/eclemma/branches/v1.x/org.eclemma.runtime.equinox/
+ * @author Julien Malvot
+ *
+ */
 public class Activator implements BundleActivator, AppInterface {
 
 	private static BundleContext context;
-	private Instant lastPing;
-	private Instant lastPong;
+	
+	//private LogService logger;	
 
 	static BundleContext getContext() {
 		return context;
 	}
 
 	private ServiceRegistration<?> registration;
+
+	private static Data data; 
 	
 	/*
 	 * (non-Javadoc)
@@ -62,8 +78,13 @@ public class Activator implements BundleActivator, AppInterface {
 		Activator.context= bundleContext;
 		registration= context.registerService(AppInterface.class.getName(), this, null);
 	
-		lastPing = null;
-		lastPong = null;
+		/*data = new PlainBufferDataSource();
+		InstrumentationProbeControllerBuilder builder = new InstrumentationProbeControllerBuilder("edu.rice.rubis.Activator#handleUI");
+		builder.forwardSamplesToDataSource(data);
+		
+		ProbeController pc = builder.get();*/
+		//pc.activate();
+		
 	}
 
 	/*
@@ -79,6 +100,9 @@ public class Activator implements BundleActivator, AppInterface {
 
 	@Override
 	public void handleUI(String target, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		
+		response.addHeader("spl", String.format("samples=%d\n", data.getStatisticSnapshot().getSampleCount()));
+		
 		// case of basic home 
 		if (target.isEmpty()){
 			ServletPrinter sp = new ServletPrinter(response, "");
@@ -151,24 +175,9 @@ public class Activator implements BundleActivator, AppInterface {
 
 	@Override
 	public void resumeFromSnapshot(Snapshot snapshot) {
-
 	}
 
 	@Override
 	public void messageReceived(Message message) {
-		if (message instanceof PingMessage){
-			lastPing = ((PingMessage) message).getTimestamp();
-		}else if (message instanceof PongMessage){
-			lastPong = ((PongMessage) message).getTimestamp();
-		}
-		
-		if (lastPing != null && lastPong != null){
-			long delta = lastPong.getMillis() - lastPing.getMillis();
-			if (delta > 50){
-				Config.loadLevel = Config.OVERLOAD_LOAD_LEVEL;
-			}else{
-				Config.loadLevel = Config.NO_OVERLOAD_LOAD_LEVEL;
-			}
-		}
 	}
 }

@@ -31,6 +31,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cz.cuni.mff.d3s.spl.annotations.AtStart;
+
 
 /**
  * This servlets displays general information about the user loged in
@@ -49,6 +51,7 @@ public class AboutMe extends RubisHttpServlet
 	}
 
 	@Override
+	@AtStart
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
 	{
 		ServletPrinter sp = new ServletPrinter(response, "About me");

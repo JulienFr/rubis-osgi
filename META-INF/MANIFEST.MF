@@ -8,12 +8,14 @@ Require-Bundle:
  eu.ascens_ist.cloud.knowledge;bundle-version="1.0.0",
  eu.ascens_ist.cloud.appengine;bundle-version="1.0.0",
  eu.ascens_ist.cloud.connectivity;bundle-version="1.0.0"
-Import-Package: org.osgi.framework
 Export-Package: 
  edu.rice.rubis.servlets
 Bundle-SymbolicName: rubis
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: libs/mysql-connector-java-5.1.26-bin.jar,
  libs/htmlcleaner-2.6.jar,
+ libs/spl-agent.jar,
  .
+Import-Package: org.osgi.framework;version="1.7.0"
+
 

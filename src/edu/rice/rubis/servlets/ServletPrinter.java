@@ -63,6 +63,8 @@ public class ServletPrinter {
 		
 		CleanerProperties props = htmlCleaner.getProperties();
 		props.setOmitUnknownTags(true);
+		props.setOmitDeprecatedTags(true);
+		props.setAdvancedXmlEscape(false);
 		//TODO: checks if others are required
 	}
 

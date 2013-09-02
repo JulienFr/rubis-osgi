@@ -9,6 +9,7 @@
 	<!-- Path to the Java servlet API and OSGi interfaces -->
 	<property name="lib.servlets" value="${scp.home}/eu.ascens_ist.cloud.gui/lib/servlet-api-3.0.jar" />
 	<property name="lib.osgi.core" value="${scp.home}/lib/osgi.core-5.0.0.jar" />
+	<property name="lib.spl" value="libs/spl-agent.jar" />
 	
 	<property name="debuglevel" value="source,lines,vars"/>
 	<property name="target" value="1.7"/>
@@ -47,11 +48,12 @@
 	
 	<target name="build">
 		<mkdir dir="out/classes" />
-		<javac debug="true" debuglevel="${debuglevel}" destdir="out/classes"
+		<javac debug="true"  debuglevel="${debuglevel}" destdir="out/classes"
 				includeantruntime="false" source="${source}" target="${target}">
 	        <src path="src"/>
 			<classpath refid="scp.classpath"/>
 			<classpath refid="libraries.classpath"/>
+			<compilerarg line="${javac.compilerargs}" />
 		</javac>
 	</target>
 	
