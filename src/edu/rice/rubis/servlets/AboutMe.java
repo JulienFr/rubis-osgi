@@ -51,7 +51,6 @@ public class AboutMe extends RubisHttpServlet
 	}
 
 	@Override
-	@AtStart
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
 	{
 		ServletPrinter sp = new ServletPrinter(response, "About me");

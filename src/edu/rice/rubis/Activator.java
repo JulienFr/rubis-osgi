@@ -43,14 +43,9 @@ import eu.ascens_ist.cloud.connectivity.msg.Message;
 import eu.ascens_ist.cloud.knowledge.model.Snapshot;
 
 /**
+ * The spl agent must be attached with the command-line arguments of the osgi framework run/debug configurations.
+ * Uses the spl by instrumentating the functions which are used for performance assumptions.
  * 
- * The SPL agent is activated as a java agent via a command-line argument for
- * a java program. A different approach needs to be used for OSGi bundles though.
- * Use of equinox adapter hooks, see [1].
- * E.g. some implementation at [2]
- * 
- * [1] http://www.eclemma.org/research/instrumentingosgi/index.html
- * [2] http://sourceforge.net/p/eclemma/code/1739/tree/eclemma/branches/v1.x/org.eclemma.runtime.equinox/
  * @author Julien Malvot
  *
  */
