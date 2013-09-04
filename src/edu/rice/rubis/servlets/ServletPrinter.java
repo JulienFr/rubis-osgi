@@ -107,19 +107,8 @@ public class ServletPrinter {
 		InputStreamReader isr = null;
 		try
 		{
-			//StringBuffer fileData = new StringBuffer();
 			InputStream is = ServletPrinter.class.getClassLoader().getResourceAsStream(filename);
-			//isr = new InputStreamReader(is);
-			//http://stackoverflow.com/questions/1656797/how-to-read-a-file-into-string-in-java
-	        /*BufferedReader reader = new BufferedReader(isr);
-	        char[] buf = new char[1024];
-	        int numRead=0;
-	        while((numRead=reader.read(buf)) != -1){
-	            String readData = String.valueOf(buf, 0, numRead);
-	            fileData.append(readData);
-	        }
-		    reader.close();
-		    String fileString = fileData.toString();*/
+			// constructs the dom of the html code
 			TagNode root = htmlCleaner.clean(is);
 	    	// Processes display policies regarding the load level
 		    switch (Config.loadLevel) {
@@ -129,7 +118,7 @@ public class ServletPrinter {
 		    	// http://stackoverflow.com/questions/1699313/how-to-remove-html-tag-in-java
 		    	// using regexps is a bad approach (html/regexp have different grammars).
 		    	Object[] found = root.evaluateXPath("//img");
-		    	if(found.length > 0) {
+		    	if(found != null) {
 		    	    for (Object tn : found){
 		    	    	if (tn instanceof TagNode)
 		    				((TagNode)tn).removeFromTree();
@@ -248,6 +237,7 @@ public class ServletPrinter {
 	void printItem(String itemName, int itemId, float maxBid, int nbOfBids,
 			String endDate) {
 		try {
+			String img = (Config.loadLevel == Config.OVERLOAD_LOAD_LEVEL ? "<IMG SRC=\"/app/rubis/images/bid_now.jpg\" height=22 width=90>" : "");
 			out.println("<TR><TD><a href=\"ViewItem?itemId="
 					+ itemId
 					+ "\">"
@@ -260,7 +250,7 @@ public class ServletPrinter {
 					+ endDate
 					+ "<TD><a href=\"PutBidAuth?itemId="
 					+ itemId
-					+ "\"><IMG SRC=\"/app/rubis/images/bid_now.jpg\" height=22 width=90></a>");
+					+ "\">" + img + "</a>");
 		} catch (Exception e) {
 			out.println("Unable to print Item (exception: " + e + ")<br>");
 		}
@@ -366,18 +356,21 @@ public class ServletPrinter {
 					+ "<TR><TD>Ends<TD>" + endDate + "\n" + "</TABLE>");
 			// Can the user buy this item now ?
 			if (buyNow > 0) {
+				String img = (Config.loadLevel == Config.OVERLOAD_LOAD_LEVEL ? "<IMG SRC=\"/app/rubis/images/buy_it_now.jpg\" height=22 width=150>" : "");
 				out.println("<p><a href=\"/app/rubis/servlet/BuyNowAuth?itemId="
 						+ itemId
 						+ "\">"
-						+ "<IMG SRC=\"/app/rubis/images/buy_it_now.jpg\" height=22 width=150></a>"
+						+ img + "</a>"
 						+ "  <BIG><b>You can buy this item right now for only $"
 						+ buyNow + "</b></BIG><br><p>\n");
 			}
 
 			if (userId <= 0) {
+				String img = (Config.loadLevel == Config.OVERLOAD_LOAD_LEVEL ? "<IMG SRC=\"/app/rubis/images/bid_now.jpg\" height=22 width=90>" : "");
+				
 				out.println("<a href=\"/app/rubis/servlet/PutBidAuth?itemId="
 						+ itemId
-						+ "\"><IMG SRC=\"/app/rubis/images/bid_now.jpg\" height=22 width=90> on this item</a>\n");
+						+ "\">"+ img +" on this item</a>\n");
 			}
 
 			this.printHTMLHighlighted("Item description");
@@ -438,6 +431,7 @@ public class ServletPrinter {
 			String sellerName, float currentPrice, float maxBid,
 			String username, String password) {
 		try {
+			String img = (Config.loadLevel == Config.OVERLOAD_LOAD_LEVEL ? "<IMG SRC=\"/app/rubis/images/bid_now.jpg\" height=22 width=90>" : "");
 			out.println("<TR><TD><a href=\"/app/rubis/servlet/ViewItem?itemId="
 					+ itemId
 					+ "\">"
@@ -464,7 +458,7 @@ public class ServletPrinter {
 					+ username
 					+ "&password="
 					+ password
-					+ "\"><IMG SRC=\"/app/rubis/images/bid_now.jpg\" height=22 width=90></a>\n");
+					+ "\">"+img+ "</a>\n");
 		} catch (Exception e) {
 			out.println("Unable to print Item (exception: " + e + ")<br>\n");
 		}
