@@ -14,8 +14,11 @@ Bundle-SymbolicName: rubis
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: libs/mysql-connector-java-5.1.26-bin.jar,
  libs/htmlcleaner-2.6.jar,
- libs/spl-agent.jar,
  .
-Import-Package: org.osgi.framework;version="1.7.0"
+Import-Package: org.osgi.framework,
+ cz.cuni.mff.d3s.spl.core,
+ cz.cuni.mff.d3s.spl.probe,
+ cz.cuni.mff.d3s.spl.stock,
+ cz.cuni.mff.d3s.spl.agent
 
 

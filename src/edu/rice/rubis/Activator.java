@@ -11,7 +11,6 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-import cz.cuni.mff.d3s.spl.agent.AgentMain;
 import cz.cuni.mff.d3s.spl.core.Data;
 import cz.cuni.mff.d3s.spl.core.ProbeController;
 import cz.cuni.mff.d3s.spl.probe.InstrumentationProbeControllerBuilder;
@@ -73,12 +72,12 @@ public class Activator implements BundleActivator, AppInterface {
 		Activator.context= bundleContext;
 		registration= context.registerService(AppInterface.class.getName(), this, null);
 	
-		/*data = new PlainBufferDataSource();
-		InstrumentationProbeControllerBuilder builder = new InstrumentationProbeControllerBuilder("edu.rice.rubis.Activator#handleUI");
-		builder.forwardSamplesToDataSource(data);
-		
-		ProbeController pc = builder.get();*/
-		//pc.activate();
+		data = new PlainBufferDataSource();
+ 		InstrumentationProbeControllerBuilder builder = new InstrumentationProbeControllerBuilder("edu.rice.rubis.Activator#handleUI");
+ 		builder.forwardSamplesToDataSource(data);
+ 		
+		ProbeController pc = builder.get();
+		pc.activate();
 		
 	}
 
@@ -97,7 +96,13 @@ public class Activator implements BundleActivator, AppInterface {
 	public void handleUI(String target, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		
 		response.addHeader("spl", String.format("samples=%d\n", data.getStatisticSnapshot().getSampleCount()));
-		
+		// fixes a performance level based on the sample count
+		long count = data.getStatisticSnapshot().getSampleCount();
+		if (count <= 10000){
+			Config.performanceLevel = Config.NO_OVERLOAD_PERFORMANCE_LEVEL;
+		}else{
+			Config.performanceLevel = Config.OVERLOAD_PERFORMANCE_LEVEL;
+		}
 		// case of basic home 
 		if (target.isEmpty()){
 			ServletPrinter sp = new ServletPrinter(response, "");

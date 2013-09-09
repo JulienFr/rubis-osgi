@@ -10,7 +10,9 @@
 	<property name="lib.servlets" value="${scp.home}/eu.ascens_ist.cloud.gui/lib/servlet-api-3.0.jar" />
 	<property name="lib.osgi.core" value="${scp.home}/lib/osgi.core-5.0.0.jar" />
 	<property name="lib.spl" value="libs/spl-agent.jar" />
-	
+	<property name="lib.htmlcleaner" value="libs/htmlcleaner-2.6.jar" />
+ 	
+	<property name="javac.compilerargs" value="" />
 	<property name="debuglevel" value="source,lines,vars"/>
 	<property name="target" value="1.7"/>
 	<property name="source" value="1.7"/>
@@ -30,6 +32,8 @@
 	<path id="libraries.classpath">
 		<pathelement location="${lib.servlets}" />		
 		<pathelement location="${lib.osgi.core}" />
+		<pathelement location="${lib.htmlcleaner}" />
+		<pathelement location="${lib.spl}" />
 	</path>
 	
 	<target name="init">
@@ -64,6 +68,7 @@
 				<include name="**/META-INF/SLA.MF" />
 				<include name="**/res/**" />
 				<include name="**/libs/**"  />
+				<exclude name="**/spl-agent.jar" />
 				<include name="**.properties" />
 				<exclude name="build.properties"/>
 			</fileset>
